@@ -38,18 +38,19 @@
         .sub-button { background: #000; color: white; border: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; margin-top: 15px; cursor: pointer; width: 100%; }
         .sub-button.active { background: #e0e0e0; color: #000; }
 
-        /* VIDEO LIST */
+        /* VIDEO LIST - THUMBNAIL FIXED */
         .video-list { padding: 15px; display: none; }
         .video-card { display: flex; gap: 12px; margin-bottom: 20px; cursor: pointer; }
-        .video-thumb { width: 140px; height: 80px; background: #000; border-radius: 10px; flex-shrink: 0; overflow: hidden; }
-        .video-thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .video-thumb-container { width: 140px; height: 80px; background: #000; border-radius: 10px; flex-shrink: 0; overflow: hidden; position: relative; }
+        .video-thumb-container video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        
         .video-text b { font-size: 14px; display: block; margin-bottom: 4px; color: #0f0f0f; }
         .video-text span { font-size: 12px; color: var(--text-light); }
 
         /* PLAYER UI */
         #video-player-ui { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; overflow-y: auto; }
         .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
-        video { width: 100%; height: 100%; }
+        video#main-video-player { width: 100%; height: 100%; }
         .player-details { padding: 15px; }
         .player-actions { display: flex; justify-content: space-around; margin: 15px 0; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dark); }
@@ -78,7 +79,7 @@
         
         <div id="search-box-ui">
             <i class="fas fa-arrow-left" onclick="closeSearch()"></i>
-            <input type="text" id="search-input-field" class="search-input" placeholder="Search videos...">
+            <input type="text" id="search-input-field" class="search-input" placeholder="Search decrypted files...">
             <i class="fas fa-times" onclick="clearSearch()"></i>
         </div>
     </header>
@@ -141,74 +142,23 @@
         let videoData = [];
 
         function initData() {
-            let saved = localStorage.getItem('c9_final_v60_stable');
+            let saved = localStorage.getItem('c9_final_prod_v60');
             if (saved) {
                 videoData = JSON.parse(saved);
             } else {
-                // MANUAL VIDEO LIST - Yahan title change karein
-                videoData = [
-                    { id: 1, title: "Girl", url: "video1.mp4", views: "14.2M", likes: "612K" },
-                    { id: 2, title: "Your Video Title 2", url: "video2.mp4", views: "11.5M", likes: "480K" },
-                    { id: 3, title: "Your Video Title 3", url: "video3.mp4", views: "9.8M", likes: "320K" },
-                    { id: 4, title: "Your Video Title 4", url: "video4.mp4", views: "13.1M", likes: "550K" },
-                    { id: 5, title: "Your Video Title 5", url: "video5.mp4", views: "8.4M", likes: "290K" },
-                    { id: 6, title: "Your Video Title 6", url: "video6.mp4", views: "10.2M", likes: "410K" },
-                    { id: 7, title: "Your Video Title 7", url: "video7.mp4", views: "12.7M", likes: "510K" },
-                    { id: 8, title: "Your Video Title 8", url: "video8.mp4", views: "6.5M", likes: "190K" },
-                    { id: 9, title: "Your Video Title 9", url: "video9.mp4", views: "14.9M", likes: "720K" },
-                    { id: 10, title: "Your Video Title 10", url: "video10.mp4", views: "5.3M", likes: "120K" },
-                    { id: 11, title: "Your Video Title 11",Girl: "video11.mp4", views: "11.2M", likes: "400K" },
-                    { id: 12, title: "Your Video Title 12", url: "video12.mp4", views: "9.1M", likes: "310K" },
-                    { id: 13, title: "Your Video Title 13", url: "video13.mp4", views: "13.4M", likes: "590K" },
-                    { id: 14, title: "Your Video Title 14", url: "video14.mp4", views: "7.6M", likes: "250K" },
-                    { id: 15, title: "Your Video Title 15", url: "video15.mp4", views: "10.8M", likes: "440K" },
-                    { id: 16, title: "Your Video Title 16", url: "video16.mp4", views: "12.2M", likes: "505K" },
-                    { id: 17, title: "Your Video Title 17", url: "video17.mp4", views: "6.9M", likes: "210K" },
-                    { id: 18, title: "Your Video Title 18", url: "video18.mp4", views: "14.5M", likes: "680K" },
-                    { id: 19, title: "Your Video Title 19", url: "video19.mp4", views: "8.2M", likes: "300K" },
-                    { id: 20, title: "Your Video Title 20", url: "video20.mp4", views: "11.7M", likes: "490K" },
-                    { id: 21, title: "Your Video Title 21", url: "video21.mp4", views: "9.4M", likes: "330K" },
-                    { id: 22, title: "Your Video Title 22", url: "video22.mp4", views: "13.8M", likes: "610K" },
-                    { id: 23, title: "Your Video Title 23", url: "video23.mp4", views: "5.9M", likes: "150K" },
-                    { id: 24, title: "Your Video Title 24", url: "video24.mp4", views: "10.5M", likes: "420K" },
-                    { id: 25, title: "Your Video Title 25", url: "video25.mp4", views: "12.9M", likes: "520K" },
-                    { id: 26, title: "Your Video Title 26", url: "video26.mp4", views: "7.2M", likes: "230K" },
-                    { id: 27, title: "Your Video Title 27", url: "video27.mp4", views: "14.1M", likes: "650K" },
-                    { id: 28, title: "Your Video Title 28", url: "video28.mp4", views: "8.7M", likes: "310K" },
-                    { id: 29, title: "Your Video Title 29", url: "video29.mp4", views: "11.1M", likes: "470K" },
-                    { id: 30, title: "Your Video Title 30", url: "video30.mp4", views: "9.6M", likes: "350K" },
-                    { id: 31, title: "Your Video Title 31", url: "video31.mp4", views: "13.3M", likes: "580K" },
-                    { id: 32, title: "Your Video Title 32", url: "video32.mp4", views: "6.1M", likes: "180K" },
-                    { id: 33, title: "Your Video Title 33", url: "video33.mp4", views: "10.4M", likes: "415K" },
-                    { id: 34, title: "Your Video Title 34", url: "video34.mp4", views: "12.5M", likes: "500K" },
-                    { id: 35, title: "Your Video Title 35", url: "video35.mp4", views: "7.9M", likes: "260K" },
-                    { id: 36, title: "Your Video Title 36", url: "video36.mp4", views: "14.7M", likes: "690K" },
-                    { id: 37, title: "Your Video Title 37", url: "video37.mp4", views: "8.5M", likes: "320K" },
-                    { id: 38, title: "Your Video Title 38", url: "video38.mp4", views: "11.9M", likes: "495K" },
-                    { id: 39, title: "Your Video Title 39", url: "video39.mp4", views: "9.2M", likes: "340K" },
-                    { id: 40, title: "Your Video Title 40", url: "video40.mp4", views: "13.6M", likes: "620K" },
-                    { id: 41, title: "Your Video Title 41", url: "video41.mp4", views: "5.7M", likes: "140K" },
-                    { id: 42, title: "Your Video Title 42", url: "video42.mp4", views: "10.7M", likes: "430K" },
-                    { id: 43, title: "Your Video Title 43", url: "video43.mp4", views: "12.3M", likes: "510K" },
-                    { id: 44, title: "Your Video Title 44", url: "video44.mp4", views: "7.1M", likes: "220K" },
-                    { id: 45, title: "Your Video Title 45", url: "video45.mp4", views: "14.3M", likes: "660K" },
-                    { id: 46, title: "Your Video Title 46", url: "video46.mp4", views: "8.9M", likes: "330K" },
-                    { id: 47, title: "Your Video Title 47", url: "video47.mp4", views: "11.3M", likes: "460K" },
-                    { id: 48, title: "Your Video Title 48", url: "video48.mp4", views: "9.3M", likes: "325K" },
-                    { id: 49, title: "Your Video Title 49", url: "video49.mp4", views: "13.9M", likes: "630K" },
-                    { id: 50, title: "Your Video Title 50", url: "video50.mp4", views: "6.4M", likes: "195K" },
-                    { id: 51, title: "Your Video Title 51", url: "video51.mp4", views: "10.9M", likes: "445K" },
-                    { id: 52, title: "Your Video Title 52", url: "video52.mp4", views: "12.1M", likes: "505K" },
-                    { id: 53, title: "Your Video Title 53", url: "video53.mp4", views: "7.5M", likes: "240K" },
-                    { id: 54, title: "Your Video Title 54", url: "video54.mp4", views: "14.8M", likes: "710K" },
-                    { id: 55, title: "Your Video Title 55", url: "video55.mp4", views: "8.1M", likes: "305K" },
-                    { id: 56, title: "Your Video Title 56", url: "video56.mp4", views: "11.4M", likes: "475K" },
-                    { id: 57, title: "Your Video Title 57", url: "video57.mp4", views: "9.7M", likes: "360K" },
-                    { id: 58, title: "Your Video Title 58", url: "video58.mp4", views: "13.2M", likes: "570K" },
-                    { id: 59, title: "Your Video Title 59", url: "video59.mp4", views: "6.8M", likes: "205K" },
-                    { id: 60, title: "Your Video Title 60", url: "video60.mp4", views: "14.4M", likes: "670K" }
-                ];
-                localStorage.setItem('c9_final_v60_stable', JSON.stringify(videoData));
+                // Yahan aap titles badal sakte hain
+                videoData = [];
+                for(let i=1; i<=60; i++) {
+                    let v = (Math.random() * (14.9 - 1.5) + 1.5).toFixed(1);
+                    videoData.push({
+                        id: i,
+                        title: "Video Title " + i, // Inhain aap manual badal sakte hain
+                        url: "video" + i + ".mp4",
+                        views: v + "M",
+                        likes: Math.floor(v * 48) + "K"
+                    });
+                }
+                localStorage.setItem('c9_final_prod_v60', JSON.stringify(videoData));
             }
         }
 
@@ -242,9 +192,12 @@
             const timeStr = calculateDays();
             box.innerHTML = '';
             list.forEach(v => {
+                // Note: video tag with #t=0.1 loads the first frame as thumbnail automatically
                 box.innerHTML += `
                     <div class="video-card" onclick="openVideo(${v.id})">
-                        <div class="video-thumb"><img src="c9profile.png"></div>
+                        <div class="video-thumb-container">
+                            <video src="${v.url}#t=0.1" preload="metadata" muted playsinline></video>
+                        </div>
                         <div class="video-text">
                             <b>${v.title}</b>
                             <span>C9 UZAIR • ${v.views} views • ${timeStr}</span>
@@ -320,7 +273,7 @@
             document.getElementById('like-btn').className = liked.includes(id) ? 'icon-btn active-red' : 'icon-btn';
         }
 
-        function handleShare() { triggerSpinner(700, () => alert("Encrypted Link Copied.")); }
+        function handleShare() { triggerSpinner(700, () => alert("Link Copied.")); }
     </script>
 </body>
 </html>
