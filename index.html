@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,7 +38,7 @@
         .sub-button { background: #000; color: white; border: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; margin-top: 15px; cursor: pointer; width: 100%; }
         .sub-button.active { background: #e0e0e0; color: #000; }
 
-        /* VIDEO LIST - BLUR THUMBNAIL */
+        /* VIDEO LIST - BLUR DESIGN */
         .video-list { padding: 15px; display: none; }
         .video-card { display: flex; gap: 12px; margin-bottom: 20px; cursor: pointer; }
         .video-thumb-blur { 
@@ -153,18 +152,69 @@
     <script>
         const LAUNCH_DATE = "2026-04-16"; 
         
-        // Yahan maine 60 videos ke FIXED data ko lock kar diya hai
-        // Har mobile par yahi same list show hogi
-        const fixedVideoData = [];
-        for(let i=1; i<=60; i++) {
-            fixedVideoData.push({
-                id: i,
-                title: "Video Title " + i, 
-                url: "video" + i + ".mp4",
-                views: (10 + (i * 0.2)).toFixed(1) + "M", // Device se koi lena dena nahi, ye formula se generate honge
-                likes: (100 + (i * 5)) + "K"
-            });
-        }
+        // Yahan har video ka title aur views alag alag rakhein
+        const videoData = [
+            { id: 1, title: "Title Video 1", url: "video1.mp4", views: "10.2M", likes: "500K" },
+            { id: 2, title: "Title Video 2", url: "video2.mp4", views: "8.5M", likes: "420K" },
+            { id: 3, title: "Title Video 3", url: "video3.mp4", views: "12.1M", likes: "600K" },
+            { id: 4, title: "Title Video 4", url: "video4.mp4", views: "6.7M", likes: "280K" },
+            { id: 5, title: "Title Video 5", url: "video5.mp4", views: "14.2M", likes: "710K" },
+            { id: 6, title: "Title Video 6", url: "video6.mp4", views: "9.3M", likes: "450K" },
+            { id: 7, title: "Title Video 7", url: "video7.mp4", views: "11.8M", likes: "550K" },
+            { id: 8, title: "Title Video 8", url: "video8.mp4", views: "5.4M", likes: "190K" },
+            { id: 9, title: "Title Video 9", url: "video9.mp4", views: "13.6M", likes: "680K" },
+            { id: 10, title: "Title Video 10", url: "video10.mp4", views: "7.2M", likes: "310K" },
+            { id: 11, title: "Title Video 11", url: "video11.mp4", views: "10.5M", likes: "505K" },
+            { id: 12, title: "Title Video 12", url: "video12.mp4", views: "8.9M", likes: "400K" },
+            { id: 13, title: "Title Video 13", url: "video13.mp4", views: "12.4M", likes: "610K" },
+            { id: 14, title: "Title Video 14", url: "video14.mp4", views: "6.1M", likes: "220K" },
+            { id: 15, title: "Title Video 15", url: "video15.mp4", views: "14.7M", likes: "720K" },
+            { id: 16, title: "Title Video 16", url: "video16.mp4", views: "9.8M", likes: "470K" },
+            { id: 17, title: "Title Video 17", url: "video17.mp4", views: "11.3M", likes: "540K" },
+            { id: 18, title: "Title Video 18", url: "video18.mp4", views: "5.9M", likes: "210K" },
+            { id: 19, title: "Title Video 19", url: "video19.mp4", views: "13.1M", likes: "640K" },
+            { id: 20, title: "Title Video 20", url: "video20.mp4", views: "7.6M", likes: "330K" },
+            { id: 21, title: "Title Video 21", url: "video21.mp4", views: "10.9M", likes: "515K" },
+            { id: 22, title: "Title Video 22", url: "video22.mp4", views: "8.2M", likes: "390K" },
+            { id: 23, title: "Title Video 23", url: "video23.mp4", views: "12.8M", likes: "620K" },
+            { id: 24, title: "Title Video 24", url: "video24.mp4", views: "6.4M", likes: "240K" },
+            { id: 25, title: "Title Video 25", url: "video25.mp4", views: "14.1M", likes: "705K" },
+            { id: 26, title: "Title Video 26", url: "video26.mp4", views: "9.5M", likes: "460K" },
+            { id: 27, title: "Title Video 27", url: "video27.mp4", views: "11.1M", likes: "530K" },
+            { id: 28, title: "Title Video 28", url: "video28.mp4", views: "5.7M", likes: "200K" },
+            { id: 29, title: "Title Video 29", url: "video29.mp4", views: "13.9M", likes: "690K" },
+            { id: 30, title: "Title Video 30", url: "video30.mp4", views: "7.4M", likes: "320K" },
+            { id: 31, title: "Title Video 31", url: "video31.mp4", views: "10.7M", likes: "525K" },
+            { id: 32, title: "Title Video 32", url: "video32.mp4", views: "8.6M", likes: "410K" },
+            { id: 33, title: "Title Video 33", url: "video33.mp4", views: "12.2M", likes: "630K" },
+            { id: 34, title: "Title Video 34", url: "video34.mp4", views: "6.9M", likes: "260K" },
+            { id: 35, title: "Title Video 35", url: "video35.mp4", views: "14.5M", likes: "715K" },
+            { id: 36, title: "Title Video 36", url: "video36.mp4", views: "9.2M", likes: "440K" },
+            { id: 37, title: "Title Video 37", url: "video37.mp4", views: "11.5M", likes: "560K" },
+            { id: 38, title: "Title Video 38", url: "video38.mp4", views: "5.2M", likes: "180K" },
+            { id: 39, title: "Title Video 39", url: "video39.mp4", views: "13.4M", likes: "660K" },
+            { id: 40, title: "Title Video 40", url: "video40.mp4", views: "7.1M", likes: "300K" },
+            { id: 41, title: "Title Video 41", url: "video41.mp4", views: "10.1M", likes: "490K" },
+            { id: 42, title: "Title Video 42", url: "video42.mp4", views: "8.1M", likes: "380K" },
+            { id: 43, title: "Title Video 43", url: "video43.mp4", views: "12.9M", likes: "640K" },
+            { id: 44, title: "Title Video 44", url: "video44.mp4", views: "6.3M", likes: "250K" },
+            { id: 45, title: "Title Video 45", url: "video45.mp4", views: "14.9M", likes: "750K" },
+            { id: 46, title: "Title Video 46", url: "video46.mp4", views: "9.7M", likes: "480K" },
+            { id: 47, title: "Title Video 47", url: "video47.mp4", views: "11.9M", likes: "570K" },
+            { id: 48, title: "Title Video 48", url: "video48.mp4", views: "5.6M", likes: "230K" },
+            { id: 49, title: "Title Video 49", url: "video49.mp4", views: "13.2M", likes: "670K" },
+            { id: 50, title: "Title Video 50", url: "video50.mp4", views: "7.9M", likes: "350K" },
+            { id: 51, title: "Title Video 51", url: "video51.mp4", views: "10.4M", likes: "510K" },
+            { id: 52, title: "Title Video 52", url: "video52.mp4", views: "8.3M", likes: "400K" },
+            { id: 53, title: "Title Video 53", url: "video53.mp4", views: "12.6M", likes: "625K" },
+            { id: 54, title: "Title Video 54", url: "video54.mp4", views: "6.5M", likes: "270K" },
+            { id: 55, title: "Title Video 55", url: "video55.mp4", views: "14.3M", likes: "730K" },
+            { id: 56, title: "Title Video 56", url: "video56.mp4", views: "9.1M", likes: "455K" },
+            { id: 57, title: "Title Video 57", url: "video57.mp4", views: "11.4M", likes: "555K" },
+            { id: 58, title: "Title Video 58", url: "video58.mp4", views: "5.1M", likes: "195K" },
+            { id: 59, title: "Title Video 59", url: "video59.mp4", views: "13.7M", likes: "685K" },
+            { id: 60, title: "Title Video 60", url: "video60.mp4", views: "7.3M", likes: "315K" }
+        ];
 
         function triggerSpinner(time, callback) {
             document.getElementById('loading-overlay').style.display = 'flex';
@@ -185,7 +235,7 @@
                 document.getElementById('app-header').style.display = 'flex';
                 document.getElementById('profile-page').style.display = 'block';
                 document.getElementById('video-container').style.display = 'block';
-                renderVideos(fixedVideoData);
+                renderVideos(videoData);
                 updateSubUI();
             });
         }
@@ -208,17 +258,17 @@
         }
 
         function openSearch() { document.getElementById('search-box-ui').style.display = 'flex'; }
-        function closeSearch() { document.getElementById('search-box-ui').style.display = 'none'; renderVideos(fixedVideoData); }
-        function clearSearch() { document.getElementById('search-input-field').value = ''; renderVideos(fixedVideoData); }
+        function closeSearch() { document.getElementById('search-box-ui').style.display = 'none'; renderVideos(videoData); }
+        function clearSearch() { document.getElementById('search-input-field').value = ''; renderVideos(videoData); }
 
         document.getElementById('search-input-field').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            const filtered = fixedVideoData.filter(v => v.title.toLowerCase().includes(query));
+            const filtered = videoData.filter(v => v.title.toLowerCase().includes(query));
             renderVideos(filtered);
         });
 
         function openVideo(id) {
-            const v = fixedVideoData.find(x => x.id === id);
+            const v = videoData.find(x => x.id === id);
             triggerSpinner(1000, () => {
                 document.getElementById('video-player-ui').style.display = 'flex';
                 document.getElementById('video-title').innerText = v.title;
@@ -259,7 +309,7 @@
         function toggleLike() {
             let liked = JSON.parse(localStorage.getItem('c9_likes')) || [];
             let currTitle = document.getElementById('video-title').innerText;
-            let vid = fixedVideoData.find(x => x.title === currTitle);
+            let vid = videoData.find(x => x.title === currTitle);
             if(vid) {
                 if(liked.includes(vid.id)) liked = liked.filter(i => i !== vid.id);
                 else liked.push(vid.id);
