@@ -67,7 +67,11 @@
         .player-actions { display: flex; justify-content: space-around; margin: 15px 0; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dark); }
         .active-red { color: var(--main-red) !important; }
-        .player-channel-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+        .player-channel-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 15px; }
+
+        /* SUGGESTIONS SECTION */
+        .suggestions-title { padding: 0 15px 10px; font-size: 14px; font-weight: bold; color: var(--text-light); }
+        .suggestion-list { padding: 0 15px 50px; }
     </style>
 </head>
 <body>
@@ -147,12 +151,13 @@
                 <button class="sub-button" style="margin:0; width:auto; padding:8px 15px; font-size:12px;" id="player-sub-btn" onclick="handleSubscribe()">Subscribe</button>
             </div>
         </div>
+        <div class="suggestions-title">Up Next</div>
+        <div id="suggestion-container" class="suggestion-list"></div>
     </div>
 
     <script>
         const LAUNCH_DATE = "2026-04-16"; 
         
-        // Yahan har video ka title aur views alag alag rakhein
         const videoData = [
             { id: 1, title: "Murdered His Ex Brutally", url: "video1.mp4", views: "12.8M", likes: "1.1M" },
             { id: 2, title: "Suicide In Public", url: "video2.mp4", views: "8.5M", likes: "420K" },
@@ -235,13 +240,13 @@
                 document.getElementById('app-header').style.display = 'flex';
                 document.getElementById('profile-page').style.display = 'block';
                 document.getElementById('video-container').style.display = 'block';
-                renderVideos(videoData);
+                renderVideos(videoData, 'video-container');
                 updateSubUI();
             });
         }
 
-        function renderVideos(list) {
-            const box = document.getElementById('video-container');
+        function renderVideos(list, containerId) {
+            const box = document.getElementById(containerId);
             const timeStr = calculateDays();
             box.innerHTML = '';
             list.forEach(v => {
@@ -258,13 +263,13 @@
         }
 
         function openSearch() { document.getElementById('search-box-ui').style.display = 'flex'; }
-        function closeSearch() { document.getElementById('search-box-ui').style.display = 'none'; renderVideos(videoData); }
-        function clearSearch() { document.getElementById('search-input-field').value = ''; renderVideos(videoData); }
+        function closeSearch() { document.getElementById('search-box-ui').style.display = 'none'; renderVideos(videoData, 'video-container'); }
+        function clearSearch() { document.getElementById('search-input-field').value = ''; renderVideos(videoData, 'video-container'); }
 
         document.getElementById('search-input-field').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const filtered = videoData.filter(v => v.title.toLowerCase().includes(query));
-            renderVideos(filtered);
+            renderVideos(filtered, 'video-container');
         });
 
         function openVideo(id) {
@@ -278,7 +283,12 @@
                 p.src = v.url;
                 p.play();
                 updateLikeUI(id);
-                window.scrollTo(0,0);
+                
+                // Shuffle suggestions
+                let suggested = videoData.filter(x => x.id !== id).sort(() => Math.random() - 0.5);
+                renderVideos(suggested, 'suggestion-container');
+                
+                document.getElementById('video-player-ui').scrollTo(0,0);
             });
         }
 
@@ -301,8 +311,10 @@
             let s = JSON.parse(localStorage.getItem('c9_sub')) || false;
             const btns = [document.getElementById('main-sub-btn'), document.getElementById('player-sub-btn')];
             btns.forEach(b => {
-                b.innerText = s ? "Subscribed" : "Subscribe";
-                b.className = s ? "sub-button active" : "sub-button";
+                if(b) {
+                    b.innerText = s ? "Subscribed" : "Subscribe";
+                    b.className = s ? "sub-button active" : "sub-button";
+                }
             });
         }
 
