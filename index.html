@@ -5,250 +5,337 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --main-red: #e60000; --pure-white: #ffffff; --text-dark: #000000; --text-light: #606060; }
+        :root { --main-red: #e60000; --pure-white: #ffffff; --text-dark: #000000; --text-light: #606060; --bg-soft: #f9f9f9; }
         * { box-sizing: border-box; font-family: 'Arial', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--pure-white); margin: 0; overflow-x: hidden; }
+        body { background: var(--pure-white); margin: 0; color: var(--text-dark); overflow-x: hidden; }
+
+        /* WARNING PAGE */
+        #warning-page { position: fixed; inset: 0; background: var(--pure-white); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 25px; text-align: center; }
+        .warning-box { max-width: 450px; border: 3px solid var(--text-dark); padding: 40px 20px; border-radius: 15px; }
+        .warning-box h1 { color: var(--main-red); font-size: 28px; margin-bottom: 10px; font-weight: 900; }
 
         /* LOADER */
-        #loading-overlay { position: fixed; inset: 0; background: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .loader-circle { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid var(--main-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-circle { width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid var(--main-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* HEADER */
-        header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #eee; sticky; top: 0; background: white; z-index: 100; }
-        .portal-title { font-weight: 900; font-size: 20px; color: var(--text-dark); }
+        header { height: 60px; display: none; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 100; }
+        .portal-title { font-weight: 900; font-size: 20px; color: var(--text-dark); letter-spacing: -1px; }
+        
+        #search-box-ui { display: none; position: absolute; left: 0; top: 0; width: 100%; height: 60px; background: white; align-items: center; padding: 0 10px; z-index: 101; gap: 10px; border-bottom: 1px solid #eee; }
+        .search-input { flex: 1; border: 1px solid #ccc; padding: 8px 12px; border-radius: 20px; outline: none; font-size: 14px; background: #f1f1f1; }
 
-        /* VIDEO PLAYER SECTION (FIXED) */
+        /* CHANNEL INFO */
+        .channel-info { padding: 25px 20px; border-bottom: 1px solid #eee; display: none; background: var(--bg-soft); }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-img { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid var(--main-red); }
+        
+        .about-section { margin-top: 15px; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #eee; font-size: 13px; line-height: 1.8; }
+        .contact-details { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; }
+        .contact-details a { color: var(--text-dark); text-decoration: none; font-weight: bold; display: block; }
+
+        .sub-button { background: #000; color: white; border: none; padding: 10px 25px; border-radius: 25px; font-weight: bold; margin-top: 15px; cursor: pointer; width: 100%; }
+        .sub-button.active { background: #e0e0e0; color: #000; }
+
+        /* VIDEO LIST - BLUR DESIGN */
+        .video-list { padding: 15px; display: none; }
+        .video-card { display: flex; gap: 12px; margin-bottom: 20px; cursor: pointer; }
+        .video-thumb-blur { 
+            width: 140px; 
+            height: 80px; 
+            background: #1a1a1a; 
+            border-radius: 10px; 
+            flex-shrink: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .skull-icon { font-size: 24px; position: relative; z-index: 1; }
+        
+        .video-text b { font-size: 14px; display: block; margin-bottom: 4px; color: #0f0f0f; }
+        .video-text span { font-size: 12px; color: var(--text-light); }
+
+        /* PLAYER UI */
         #video-player-ui { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; overflow-y: auto; }
-        .back-nav { padding: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; overflow: hidden; touch-action: manipulation; }
-        video#main-video-player { width: 100%; height: 100%; object-fit: contain; }
-        
-        /* CUSTOM OVERLAY */
-        .video-controls { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; opacity: 0; transition: opacity 0.3s; z-index: 10; }
-        .video-wrapper.show-controls .video-controls { opacity: 1; }
-        
-        .mid-controls { display: flex; align-items: center; justify-content: center; gap: 50px; flex: 1; color: white; }
-        .mid-controls i { font-size: 30px; cursor: pointer; opacity: 0.9; }
-        .play-pause-btn { font-size: 50px !important; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
+        video#main-video-player { width: 100%; height: 100%; }
+        .player-details { padding: 15px; }
+        .player-actions { display: flex; justify-content: space-around; margin: 15px 0; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .icon-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dark); }
+        .active-red { color: var(--main-red) !important; }
+        .player-channel-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 15px; }
 
-        .bottom-controls { padding: 10px 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); }
-        .progress-container { width: 100%; height: 5px; background: rgba(255,255,255,0.3); border-radius: 3px; cursor: pointer; position: relative; margin-bottom: 8px; }
-        .progress-bar { height: 100%; background: var(--main-red); width: 0%; border-radius: 3px; }
-        
-        .time-row { display: flex; justify-content: space-between; color: white; font-size: 11px; font-family: monospace; }
-
-        /* TAP FEEDBACK */
-        .tap-feedback { position: absolute; top: 0; bottom: 0; width: 35%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); opacity: 0; pointer-events: none; transition: 0.2s; color: white; font-size: 24px; border-radius: 50%; }
-        .tap-left { left: 0; } .tap-right { right: 0; }
-        .tap-active { opacity: 1; }
-
-        /* UI DETAILS */
-        .video-info-box { padding: 15px; border-bottom: 1px solid #eee; }
-        .video-title { font-size: 18px; font-weight: bold; margin: 0 0 5px 0; }
-        .video-stats { font-size: 12px; color: var(--text-light); }
-        
-        .action-bar { display: flex; justify-content: space-around; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .action-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; gap: 5px; }
-        
-        .channel-row { display: flex; align-items: center; gap: 12px; padding: 15px; }
-        .channel-thumb { width: 40px; height: 40px; border-radius: 50%; }
-        .sub-btn { background: #000; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; }
-
-        /* LISTING */
-        .video-list { padding: 15px; }
-        .video-card { display: flex; gap: 12px; margin-bottom: 15px; cursor: pointer; }
-        .thumb-placeholder { width: 140px; height: 80px; background: #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 20px; flex-shrink: 0; }
-        .video-meta b { font-size: 14px; display: block; line-height: 1.3; }
-        .video-meta span { font-size: 11px; color: var(--text-light); }
+        /* SUGGESTIONS SECTION */
+        .suggestions-title { padding: 0 15px 10px; font-size: 14px; font-weight: bold; color: var(--text-light); }
+        .suggestion-list { padding: 0 15px 50px; }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay"><div class="loader-circle"></div></div>
+    <div id="warning-page">
+        <div class="warning-box">
+            <h1>DARK WEB</h1>
+            <p>Team Black Hat Hackers Pakistan ⚠️⚠️⚠️.<br><b> Enter At Your Own Risk SENSITIVE CONTENT 18+ This Data Is Sourced From The DARK WEB We Are Not Responsible For Any Illegal Activity</b></p>
+            <button onclick="startApp()" style="width:100%; background:var(--main-red); color:white; border:none; padding:15px; font-weight:bold; border-radius:8px; cursor:pointer;">ENTER</button>
+        </div>
+    </div>
 
-    <header>
+    <div id="loading-overlay">
+        <div class="loader-circle"></div>
+        <p style="margin-top:15px; font-size:12px; font-weight:bold;">Loading...</p>
+    </div>
+
+    <header id="app-header">
         <div class="portal-title">DARK WEB</div>
-        <i class="fas fa-search"></i>
+        <i class="fas fa-search fa-lg" onclick="openSearch()"></i>
+        
+        <div id="search-box-ui">
+            <i class="fas fa-arrow-left" onclick="closeSearch()"></i>
+            <input type="text" id="search-input-field" class="search-input" placeholder="Search videos...">
+            <i class="fas fa-times" onclick="clearSearch()"></i>
+        </div>
     </header>
 
-    <div id="main-feed" class="video-list">
+    <div id="profile-page" class="channel-info">
+        <div class="user-profile">
+            <img src="c9profile.png" class="user-img" alt="C9">
+            <div>
+                <b style="font-size:20px;">C9 UZAIR</b><br>
+                <span style="font-size:13px; color:var(--text-light);">2.7M Subscribers</span>
+            </div>
         </div>
+        
+        <div class="about-section">
+            This is <b>Official Team Black Hat Hackers Pakistan</b><br>
+            Owner: <b>C9 UZAIR</b><br>
+            Watch At Your Own Risk ⚠️<br>
+            <b>We Are Anonymous Pakistan</b>
+            
+            <div class="contact-details">
+                <b>Want To Learn Hacking? Contact Us:</b>
+                <a href="https://wa.me/923221287976" onclick="triggerSpinner(800)">WhatsApp: +92 322 1287976</a>
+                <a href="https://t.me/c9team_official" onclick="triggerSpinner(800)">Telegram: c9team_official</a>
+                <a href="https://www.tiktok.com/@c9uzair" onclick="triggerSpinner(800)">Official TikTok : @c9uzair</a>
+            </div>
+        </div>
+        <button class="sub-button" id="main-sub-btn" onclick="handleSubscribe()">Subscribe</button>
+    </div>
+
+    <div id="video-container" class="video-list"></div>
 
     <div id="video-player-ui">
-        <div class="back-nav" onclick="closeVideo()"><i class="fas fa-arrow-left"></i> Back to Channel</div>
-        
-        <div class="video-wrapper" id="player-container">
-            <video id="main-video-player" playsinline webkit-playsinline></video>
+        <div style="padding:15px; font-weight:bold;" onclick="closeVideo()"><i class="fas fa-arrow-left"></i> Back to Channel</div>
+        <div class="video-wrapper">
+            <video id="main-video-player" controls controlsList="nodownload" oncontextmenu="return false;"></video>
+        </div>
+        <div class="player-details">
+            <h2 id="video-title" style="margin:0; font-size:17px;"></h2>
+            <p id="video-meta" style="font-size:12px; color:var(--text-light); margin-top:5px;"></p>
             
-            <div class="video-controls" id="controls-layer">
-                <div class="mid-controls">
-                    <i class="fas fa-backward" onclick="rewind(event)"></i>
-                    <i class="fas fa-play play-pause-btn" id="play-icon" onclick="togglePlay(event)"></i>
-                    <i class="fas fa-forward" onclick="forward(event)"></i>
-                </div>
-                <div class="bottom-controls">
-                    <div class="progress-container" onclick="seek(event)">
-                        <div class="progress-bar" id="p-bar"></div>
-                    </div>
-                    <div class="time-row">
-                        <span id="time-curr">0:00</span>
-                        <span id="time-dur">0:00</span>
-                    </div>
-                </div>
+            <div class="player-actions">
+                <div class="icon-btn" id="like-btn" onclick="toggleLike()"><i class="fas fa-thumbs-up"></i> <span id="like-count"></span></div>
+                <div class="icon-btn"><i class="fas fa-thumbs-down"></i> <span>21K</span></div>
+                <div class="icon-btn" onclick="handleShare()"><i class="fas fa-share-square"></i> <span>Share</span></div>
             </div>
-            
-            <div class="tap-feedback tap-left" id="f-left"><i class="fas fa-backward"></i></div>
-            <div class="tap-feedback tap-right" id="f-right"><i class="fas fa-forward"></i></div>
-        </div>
 
-        <div class="video-info-box">
-            <h1 class="video-title" id="display-title"></h1>
-            <div class="video-stats" id="display-stats"></div>
-        </div>
-
-        <div class="action-bar">
-            <div class="action-item"><i class="fas fa-thumbs-up"></i> <span id="display-likes"></span></div>
-            <div class="action-item"><i class="fas fa-thumbs-down"></i> <span>21K</span></div>
-            <div class="action-item"><i class="fas fa-share"></i> <span>Share</span></div>
-        </div>
-
-        <div class="channel-row">
-            <img src="c9profile.png" class="channel-thumb">
-            <div style="flex:1;">
-                <b style="font-size:14px;">C9 UZAIR</b><br>
-                <span style="font-size:11px; color:var(--text-light);">2.7M Subscribers</span>
+            <div class="player-channel-row">
+                <img src="c9profile.png" style="width:40px; height:40px; border-radius:50%;">
+                <div style="flex:1;">
+                    <b style="font-size:14px;">C9 UZAIR</b><br>
+                    <span style="font-size:11px; color:var(--text-light);">2.7M Subscribers</span>
+                </div>
+                <button class="sub-button" style="margin:0; width:auto; padding:8px 15px; font-size:12px;" id="player-sub-btn" onclick="handleSubscribe()">Subscribe</button>
             </div>
-            <button class="sub-btn">Subscribe</button>
         </div>
-
-        <div style="padding: 10px 15px; font-weight: bold; color: #606060;">Up Next</div>
-        <div id="next-videos" class="video-list"></div>
+        <div class="suggestions-title">Up Next</div>
+        <div id="suggestion-container" class="suggestion-list"></div>
     </div>
 
     <script>
+        const LAUNCH_DATE = "2026-04-16"; 
+        
         const videoData = [
-            { id: 1, title: "Murdered His Ex Brutally", views: "12.8M", likes: "1.1M", url: "video1.mp4" },
-            { id: 2, title: "Indian Boy Suicide", views: "8.9M", likes: "400K", url: "video2.mp4" },
-            { id: 3, title: "14 Transgender Suicide Together", views: "11.1M", likes: "530K", url: "video3.mp4" },
-            { id: 4, title: "Death While Singing", views: "9.5M", likes: "460K", url: "video4.mp4" },
-            { id: 5, title: "Shooters Killed A Man", views: "14.5M", likes: "715K", url: "video5.mp4" }
+            { id: 1, title: "Murdered His Ex Brutally", url: "video1.mp4", views: "12.8M", likes: "1.1M" },
+            { id: 2, title: "Suicide In Public", url: "video2.mp4", views: "8.5M", likes: "420K" },
+            { id: 3, title: "Suicide Attempt Gone Wrong", url: "video3.mp4", views: "12.1M", likes: "600K" },
+            { id: 4, title: "Indian Boy Suicide", url: "video4.mp4", views: "6.7M", likes: "280K" },
+            { id: 5, title: "Hand Cutting Self Harm", url: "video5.mp4", views: "14.2M", likes: "710K" },
+            { id: 6, title: "Self Harm Gone wrong", url: "video6.mp4", views: "9.3M", likes: "450K" },
+            { id: 7, title: "Girlfriend Gone Wrong", url: "video7.mp4", views: "2.7M", likes: "339k" },
+            { id: 8, title: "Boy Killed During Tiktok Live", url: "video8.mp4", views: "5.4M", likes: "190K" },
+            { id: 9, title: "Girl Killed", url: "video9.mp4", views: "13.6M", likes: "680K" },
+            { id: 10, title: "Dangerous Incident", url: "video10.mp4", views: "7.2M", likes: "310K" },
+            { id: 11, title: "Video Unavailable", url: "video11.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 12, title: "Indian Boy Suicide", url: "video12.mp4", views: "8.9M", likes: "400K" },
+            { id: 13, title: "Dangerous Burning And Killed", url: "video13.mp4", views: "12.4M", likes: "610K" },
+            { id: 14, title: "Suicide From 14th Floor", url: "video14.mp4", views: "6.1M", likes: "220K" },
+            { id: 15, title: "Worker Face Destroyed", url: "video15.mp4", views: "14.7M", likes: "720K" },
+            { id: 16, title: "Dangerous Accident Ever", url: "video16.mp4", views: "9.8M", likes: "470K" },
+            { id: 17, title: "Crazy Old Man Self Harm", url: "video17.mp4", views: "11.3M", likes: "541K" },
+            { id: 18, title: "Celebrity Girl Killed", url: "video18.mp4", views: "5.9M", likes: "210K" },
+            { id: 19, title: "Crazy Killed", url: "video19.mp4", views: "13.1M", likes: "640K" },
+            { id: 20, title: "Old Man Killed 2 Family Members", url: "video20.mp4", views: "7.6M", likes: "338K" },
+            { id: 21, title: "Playing With Cobra Gone Wrong", url: "video21.mp4", views: "10.9M", likes: "515K" },
+            { id: 22, title: "Train Stunt Gone Wrong", url: "video22.mp4", views: "8.2M", likes: "390K" },
+            { id: 23, title: "Poor Worker Dead", url: "video23.mp4", views: "12.8M", likes: "620K" },
+            { id: 24, title: "Stupid Indian Boy Killed His Girlfriend In Hospital", url: "video24.mp4", views: "6.4M", likes: "240K" },
+            { id: 25, title: "Fool Boy Split His Own Head", url: "video25.mp4", views: "14.1M", likes: "705K" },
+            { id: 26, title: "Death While Singing", url: "video26.mp4", views: "9.5M", likes: "460K" },
+            { id: 27, title: "14 Transgender Suicide Together", url: "video27.mp4", views: "11.1M", likes: "530K" },
+            { id: 28, title: "Truck Hit Innocent Kid", url: "video28.mp4", views: "5.7M", likes: "200K" },
+            { id: 29, title: "2 Murders", url: "video29.mp4", views: "13.9M", likes: "690K" },
+            { id: 30, title: "Dangerous Bike Accident", url: "video30.mp4", views: "7.4M", likes: "320K" },
+            { id: 31, title: "Indian Crazy Doctors Destroying Woman", url: "video31.mp4", views: "10.7M", likes: "525K" },
+            { id: 32, title: "Video Unavailable", url: "video32.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 33, title: "Hitman Killed A Man", url: "video33.mp4", views: "12.2M", likes: "630K" },
+            { id: 34, title: "Couple Suicide Together", url: "video34.mp4", views: "6.9M", likes: "260K" },
+            { id: 35, title: "Shooters Killed A Man", url: "video35.mp4", views: "14.5M", likes: "715K" },
+            { id: 36, title: "Disturbing Video", url: "video36.mp4", views: "9.2M", likes: "440K" },
+            { id: 37, title: "Depressed Girl Suicide", url: "video37.mp4", views: "11.5M", likes: "560K" },
+            { id: 38, title: "Murdered His Boss With Knife", url: "video38.mp4", views: "5.2M", likes: "180K" },
+            { id: 39, title: "Stupid Boy Suicide In Front Of Police", url: "video39.mp4", views: "13.4M", likes: "660K" },
+            { id: 40, title: "Cutting A Boy With Knife", url: "video40.mp4", views: "7.1M", likes: "300K" },
+            { id: 41, title: "Brother Kill Brother Because He Raped His Wife", url: "video41.mp4", views: "10.1M", likes: "490K" },
+            { id: 42, title: "Stupid Gangster Shoot Eachother", url: "video42.mp4", views: "8.1M", likes: "380K" },
+            { id: 43, title: "Video Unavailable", url: "video43.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 44, title: "Murder", url: "video44.mp4", views: "6.3M", likes: "250K" },
+            { id: 45, title: "Gangsters Killed A Boy In Peaces Brutally", url: "video45.mp4", views: "14.9M", likes: "750K" },
+            { id: 46, title: "Burning Suicide", url: "video46.mp4", views: "9.7M", likes: "480K" },
+            { id: 47, title: "Suicide Attempt With Knife", url: "video47.mp4", views: "11.9M", likes: "570K" },
+            { id: 48, title: "Murdered", url: "video48.mp4", views: "5.6M", likes: "230K" },
+            { id: 49, title: "Crocodile Attacked", url: "video49.mp4", views: "13.2M", likes: "670K" },
+            { id: 50, title: "Video Unavailable", url: "video50.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 51, title: "Suicide Attempt", url: "video51.mp4", views: "10.4M", likes: "510K" },
+            { id: 52, title: "Cutting Whole Boy", url: "video52.mp4", views: "8.3M", likes: "400K" },
+            { id: 53, title: "Creepy Suicide", url: "video53.mp4", views: "12.6M", likes: "625K" },
+            { id: 54, title: "Train Hits A Man", url: "video54.mp4", views: "6.5M", likes: "270K" },
+            { id: 55, title: "Girl Accident", url: "video55.mp4", views: "14.3M", likes: "730K" },
+            { id: 56, title: "Cutting His Head", url: "video56.mp4", views: "9.1M", likes: "455K" },
+            { id: 57, title: "Video Unavailable", url: "video57.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 58, title: "Video Unavailable", url: "video58.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 59, title: "Video Unavailable", url: "video59.mp4", views: "Unavailable", likes: "Unavailable" },
+            { id: 60, title: "Video Unavailable", url: "video60.mp4", views: "Unavailable", likes: "Unavailable" }
         ];
 
-        const v = document.getElementById('main-video-player');
-        const container = document.getElementById('player-container');
-        const playIcon = document.getElementById('play-icon');
-        const progressBar = document.getElementById('p-bar');
-
-        // VIDEO CONTROLS
-        function togglePlay(e) {
-            if(e) e.stopPropagation();
-            if(v.paused) { v.play(); playIcon.className = "fas fa-pause play-pause-btn"; }
-            else { v.pause(); playIcon.className = "fas fa-play play-pause-btn"; }
+        function triggerSpinner(time, callback) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                if(callback) callback();
+            }, time);
         }
 
-        v.ontimeupdate = () => {
-            let pct = (v.currentTime / v.duration) * 100;
-            progressBar.style.width = pct + "%";
-            document.getElementById('time-curr').innerText = formatTime(v.currentTime);
-            document.getElementById('time-dur').innerText = formatTime(v.duration || 0);
-        };
-
-        function formatTime(s) {
-            let m = Math.floor(s/60);
-            s = Math.floor(s%60);
-            return m + ":" + (s < 10 ? '0'+s : s);
+        function calculateDays() {
+            let diff = Math.floor((new Date() - new Date(LAUNCH_DATE)) / (1000*60*60*24));
+            return (diff <= 0) ? "1 day ago" : (diff + 1) + " days ago";
         }
 
-        function seek(e) {
-            let rect = e.currentTarget.getBoundingClientRect();
-            let pos = (e.clientX - rect.left) / rect.width;
-            v.currentTime = pos * v.duration;
+        function startApp() {
+            triggerSpinner(1500, () => {
+                document.getElementById('warning-page').style.display = 'none';
+                document.getElementById('app-header').style.display = 'flex';
+                document.getElementById('profile-page').style.display = 'block';
+                document.getElementById('video-container').style.display = 'block';
+                renderVideos(videoData, 'video-container');
+                updateSubUI();
+            });
         }
 
-        function rewind(e) { if(e) e.stopPropagation(); v.currentTime -= 10; feedback('left'); }
-        function forward(e) { if(e) e.stopPropagation(); v.currentTime += 10; feedback('right'); }
-
-        function feedback(side) {
-            let el = document.getElementById('f-' + side);
-            el.classList.add('tap-active');
-            setTimeout(() => el.classList.remove('tap-active'), 400);
-        }
-
-        // DOUBLE TAP & SHOW CONTROLS
-        let lastTap = 0;
-        let timer;
-        container.onclick = (e) => {
-            let now = Date.now();
-            if(now - lastTap < 300) {
-                let rect = container.getBoundingClientRect();
-                if(e.clientX - rect.left < rect.width/2) rewind(); else forward();
-            } else {
-                container.classList.toggle('show-controls');
-                clearTimeout(timer);
-                if(container.classList.contains('show-controls')) {
-                    timer = setTimeout(() => container.classList.remove('show-controls'), 3000);
-                }
-            }
-            lastTap = now;
-        };
-
-        // APP LOGIC
-        function loadFeed() {
-            const feed = document.getElementById('main-feed');
-            videoData.forEach(item => {
-                feed.innerHTML += `
-                    <div class="video-card" onclick="openVideo(${item.id})">
-                        <div class="thumb-placeholder"><i class="fas fa-play"></i></div>
-                        <div class="video-meta">
-                            <b>${item.title}</b>
-                            <span>C9 UZAIR • ${item.views} • 1 day ago</span>
+        function renderVideos(list, containerId) {
+            const box = document.getElementById(containerId);
+            const timeStr = calculateDays();
+            box.innerHTML = '';
+            list.forEach(v => {
+                box.innerHTML += `
+                    <div class="video-card" onclick="openVideo(${v.id})">
+                        <div class="video-thumb-blur"><span class="skull-icon">⚠️</span></div>
+                        <div class="video-text">
+                            <b>${v.title}</b>
+                            <span>C9 UZAIR • ${v.views} views • ${timeStr}</span>
                         </div>
                     </div>
                 `;
             });
         }
 
+        function openSearch() { document.getElementById('search-box-ui').style.display = 'flex'; }
+        function closeSearch() { document.getElementById('search-box-ui').style.display = 'none'; renderVideos(videoData, 'video-container'); }
+        function clearSearch() { document.getElementById('search-input-field').value = ''; renderVideos(videoData, 'video-container'); }
+
+        document.getElementById('search-input-field').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = videoData.filter(v => v.title.toLowerCase().includes(query));
+            renderVideos(filtered, 'video-container');
+        });
+
         function openVideo(id) {
-            const data = videoData.find(x => x.id === id);
-            document.getElementById('loading-overlay').style.display = 'flex';
-            
-            setTimeout(() => {
-                document.getElementById('loading-overlay').style.display = 'none';
+            const v = videoData.find(x => x.id === id);
+            triggerSpinner(1000, () => {
                 document.getElementById('video-player-ui').style.display = 'flex';
-                document.getElementById('display-title').innerText = data.title;
-                document.getElementById('display-stats').innerText = `${data.views} views • 1 day ago`;
-                document.getElementById('display-likes').innerText = data.likes;
+                document.getElementById('video-title').innerText = v.title;
+                document.getElementById('video-meta').innerText = v.views + " views • " + calculateDays();
+                document.getElementById('like-count').innerText = v.likes;
+                const p = document.getElementById('main-video-player');
+                p.src = v.url;
+                p.play();
+                updateLikeUI(id);
                 
-                v.src = data.url;
-                v.play();
-                playIcon.className = "fas fa-pause play-pause-btn";
+                // Shuffle suggestions
+                let suggested = videoData.filter(x => x.id !== id).sort(() => Math.random() - 0.5);
+                renderVideos(suggested, 'suggestion-container');
                 
-                // Recommendations
-                const next = document.getElementById('next-videos');
-                next.innerHTML = '';
-                videoData.filter(x => x.id !== id).forEach(item => {
-                    next.innerHTML += `
-                        <div class="video-card" onclick="openVideo(${item.id})">
-                            <div class="thumb-placeholder"><i class="fas fa-play"></i></div>
-                            <div class="video-meta">
-                                <b>${item.title}</b>
-                                <span>C9 UZAIR • ${item.views}</span>
-                            </div>
-                        </div>
-                    `;
-                });
                 document.getElementById('video-player-ui').scrollTo(0,0);
-            }, 800);
+            });
         }
 
         function closeVideo() {
-            v.pause();
-            document.getElementById('video-player-ui').style.display = 'none';
+            triggerSpinner(600, () => {
+                document.getElementById('main-video-player').pause();
+                document.getElementById('video-player-ui').style.display = 'none';
+            });
         }
 
-        window.onload = loadFeed;
+        function handleSubscribe() {
+            triggerSpinner(500, () => {
+                let s = !JSON.parse(localStorage.getItem('c9_sub'));
+                localStorage.setItem('c9_sub', s);
+                updateSubUI();
+            });
+        }
+
+        function updateSubUI() {
+            let s = JSON.parse(localStorage.getItem('c9_sub')) || false;
+            const btns = [document.getElementById('main-sub-btn'), document.getElementById('player-sub-btn')];
+            btns.forEach(b => {
+                if(b) {
+                    b.innerText = s ? "Subscribed" : "Subscribe";
+                    b.className = s ? "sub-button active" : "sub-button";
+                }
+            });
+        }
+
+        function toggleLike() {
+            let liked = JSON.parse(localStorage.getItem('c9_likes')) || [];
+            let currTitle = document.getElementById('video-title').innerText;
+            let vid = videoData.find(x => x.title === currTitle);
+            if(vid) {
+                if(liked.includes(vid.id)) liked = liked.filter(i => i !== vid.id);
+                else liked.push(vid.id);
+                localStorage.setItem('c9_likes', JSON.stringify(liked));
+                updateLikeUI(vid.id);
+            }
+        }
+
+        function updateLikeUI(id) {
+            let liked = JSON.parse(localStorage.getItem('c9_likes')) || [];
+            document.getElementById('like-btn').className = liked.includes(id) ? 'icon-btn active-red' : 'icon-btn';
+        }
+
+        function handleShare() { triggerSpinner(700, () => alert("Link Copied.")); }
     </script>
 </body>
 </html>
